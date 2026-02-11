@@ -33,12 +33,6 @@ async def create_session(user_id):
     return session_id
 
 
-async def close_session(session_id):
-    from src.utils.cache import rm_cache
-
-    await rm_cache(session_id)
-
-
 async def authorize(user_data):
     from fastapi import status
     from src.db_requests.auth import get_user_data
