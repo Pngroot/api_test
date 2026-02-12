@@ -7,6 +7,11 @@ from src.dependences.auth import is_unauthorized
 auth_router = APIRouter(prefix='/auth', dependencies=[Depends(is_unauthorized)])
 
 
+@auth_router.get('/')
+async def auth():
+    return {'message': 'Login (/auth/login/) or register (/auth/register/)'}
+
+
 @auth_router.post('/register')
 async def register(body: Register, response: Response):
     hashed_password = await hash_password(body.password)
