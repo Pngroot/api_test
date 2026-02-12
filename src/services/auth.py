@@ -13,15 +13,19 @@ async def verify_password(password, password_hash):
 
 async def create_user(username, password):
     from fastapi import status
+    from sqlalchemy.exc import IntegrityError
     from src.db_requests.auth import create_user
     from src.data.auth import UserRegistered
 
-    insert_status, user = await create_user(username, password)
+    user, error = await create_user(username, password)
+    print(f"User - {user or 'None'}, error - {error or 'None'}")
     if user:
-        return UserRegistered(user=user, status=insert_status)
+        return UserRegistered(user=user, status=status.HTTP_201_CREATED)
     error_messages = {status.HTTP_409_CONFLICT: 'User already exists!',
                       status.HTTP_500_INTERNAL_SERVER_ERROR: 'Internal server error'}
-    return UserRegistered(user=None, status=insert_status, message=error_messages[insert_status])
+    error_status = (status.HTTP_409_CONFLICT if issubclass(error, IntegrityError)
+                    else status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return UserRegistered(user=None, status=error_status, message=error_messages[error_status])
 
 
 async def create_session(user_id):
@@ -41,12 +45,11 @@ async def authorize(user_data):
     existed_user = await get_user_data(user_data.username)
     if not existed_user:
         return UserLogin(status=status.HTTP_404_NOT_FOUND, session_id=None, message='User not exists!')
-    print(existed_user)
     password_match = await verify_password(user_data.password, existed_user['password_hash'])
     if password_match is False:
         return UserLogin(status=status.HTTP_400_BAD_REQUEST, session_id=None, message='Invalid password')
     session_id = await create_session(existed_user['id'])
-    return UserLogin(status=status.HTTP_202_ACCEPTED, session_id=session_id,
+    return UserLogin(status=status.HTTP_200_OK, session_id=session_id,
                      message=f"You have successfully logged in as {existed_user['username']}")
 
 

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Response, Depends
 from src.schemas.auth import *
 from src.services.auth import *
-from src.dependences.auth import is_authorized
+from src.dependences.auth import is_unauthorized
 
 
-auth_router = APIRouter(prefix='/auth', dependencies=[Depends(is_authorized)])
+auth_router = APIRouter(prefix='/auth', dependencies=[Depends(is_unauthorized)])
 
 
 @auth_router.post('/register')

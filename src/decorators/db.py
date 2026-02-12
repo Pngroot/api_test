@@ -1,30 +1,22 @@
 def insert_to_db(func):
-    from fastapi import status
-    from sqlalchemy.exc import DatabaseError, IntegrityError
     from src.core.database import async_session
 
     async def wrapper(*args, **kwargs):
         try:
             data = await func(*args, **kwargs)
             async with async_session() as session:
-                session.add(data)
-                await session.commit()
+                async with session.begin():
+                    session.add(data)
                 await session.refresh(data)
-            return status.HTTP_201_CREATED, data
-        except IntegrityError:
-            return status.HTTP_409_CONFLICT, None
-        except DatabaseError as e:
-            print(e)
-            await session.rollback()
-            return status.HTTP_500_INTERNAL_SERVER_ERROR, None
+            return data, None
         except Exception as e:
             print(e)
-            return status.HTTP_500_INTERNAL_SERVER_ERROR, None
+            error = type(e)
+            return None, error
     return wrapper
 
 
 def get_from_db(func):
-    from sqlalchemy.exc import DatabaseError
     from src.core.database import async_session
 
     async def wrapper(*args, **kwargs):
@@ -36,8 +28,61 @@ def get_from_db(func):
             if result:
                 result = dict(result)
             return result
-        except DatabaseError:
-            session.refresh()
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
+        return None
+    return wrapper
+
+
+def select_from_db(func):
+    from src.core.database import async_session
+
+    async def wrapper(*args, **kwargs):
+        query = await func(*args, **kwargs)
+        try:
+            async with async_session() as session:
+                query_result = await session.execute(query)
+                rows = query_result.mappings().all()
+            return [dict(r) for r in rows] if rows else []
+        except Exception as e:
+            print(e)
+        return []
+    return wrapper
+
+
+def update_db(func):
+    from src.core.database import async_session
+
+    async def wrapper(*args, **kwargs):
+        query = await func(*args, **kwargs)
+        try:
+            async with async_session() as session:
+                query_result = await session.execute(query)
+                await session.commit()
+            if query_result:
+                result = query_result.mappings().one_or_none()
+                if result:
+                    result = dict(result)
+                return result
+        except Exception as e:
+            print(e)
+        return {}
+    return wrapper
+
+
+def delete_from_db(func):
+    from sqlalchemy.exc import NoResultFound
+    from src.core.database import async_session
+
+    async def wrapper(*args, **kwargs):
+        query = await func(*args, **kwargs)
+        try:
+            async with async_session() as session:
+                result = await session.execute(query)
+                await session.commit()
+            if result.rowcount == 0:
+                raise NoResultFound
+            return True, None
+        except Exception as e:
+            return False, type(e)
     return wrapper
