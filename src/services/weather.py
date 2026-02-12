@@ -46,7 +46,7 @@ async def delete_city(city_id):
     from src.data.weather import CityDelete
     from src.db_requests.weather import delete_city_data
 
-    deleted, error = await delete_city_data()
+    deleted, error = await delete_city_data(city_id)
     if deleted:
         return CityDelete(status=status.HTTP_200_OK,
                           message=f"City with id = {city_id} was deleted successfully!")
