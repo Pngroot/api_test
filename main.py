@@ -36,6 +36,12 @@ async def index():
 
 @app.get('/logout')
 async def logout(response: Response, session_id: str = Depends(is_authorized)):
+    """
+    Эндпоинт для завершения авторизованной сессии
+
+    :param session_id: ID сессии авторизованного пользователя, задается валидацией пользователя через dependence
+    """
     await close_session(session_id)
+    # После удаления сессии из БД удаляем ID сессии из куки
     response.delete_cookie('session_id')
     return {'message': 'Logged out'}

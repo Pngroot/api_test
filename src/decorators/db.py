@@ -1,3 +1,7 @@
+"""
+Декораторы для организации запросов к SQLAlchemy.
+"""
+
 from src.core.logger import logger
 
 
@@ -84,6 +88,7 @@ def delete_from_db(func):
                 result = await session.execute(query)
                 await session.commit()
             if result.rowcount == 0:
+                # result.rowcount == 0 - записи в БД не существует
                 raise NoResultFound
             return True, None
         except Exception as e:

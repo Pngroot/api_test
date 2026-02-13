@@ -3,6 +3,12 @@ from src.core.logger import logger
 
 
 async def is_unauthorized(request: Request):
+    """
+    Dependence для проверки, что пользователь не авторизован
+
+    :param request: запрос, содержащий файл куки
+    """
+
     session_id = request.cookies.get('session_id')
     if session_id:
         result = None

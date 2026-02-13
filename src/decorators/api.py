@@ -2,6 +2,10 @@ from src.core.logger import logger
 
 
 def allow_retries(method):
+    """
+    Декоратор для организации повторных запросов при обращении к API
+    """
+
     async def wrapper(self, *args, **kwargs):
         retries = self.retries
         attempt = 0

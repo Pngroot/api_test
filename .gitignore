@@ -6,3 +6,5 @@ __pycache__
 **/__pycache__/
 
 src/alembic/versions/*
+
+errors.log

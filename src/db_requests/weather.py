@@ -67,6 +67,11 @@ async def get_city_data(city_id):
 
 @delete_from_db
 async def delete_city_data(city_id):
+    """
+    DELETE-запрос на удаление записи о городе из таблицы City.
+    Каскадно удаляет запись из таблицы Weather.
+    """
+
     from sqlalchemy import delete
     from src.db.models.weather import City
 
