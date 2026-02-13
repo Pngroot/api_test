@@ -1,4 +1,5 @@
 from fastapi import Request, HTTPException, status
+from src.core.logger import logger
 
 
 async def is_authorized(request: Request):
@@ -8,8 +9,7 @@ async def is_authorized(request: Request):
             redis_cache = request.app.state.redis
             result = await redis_cache.get(session_id)
             if result:
-                print(f"Session id - {session_id} associate with user id {result}")
                 return session_id
         except Exception as e:
-            print(e)
+            logger.error(f"Error accessing Redis cache: {e}")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

@@ -1,3 +1,6 @@
+from src.core.logger import logger
+
+
 def allow_retries(method):
     async def wrapper(self, *args, **kwargs):
         retries = self.retries
@@ -7,9 +10,9 @@ def allow_retries(method):
                 result = await method(self, *args, **kwargs)
                 return result
             except Exception as e:
-                print(f"Error accessing API:\n{e}")
+                logger.error(f"Error accessing API:\n{e}")
                 attempt += 0
                 if attempt >= retries:
-                    print('The number of API access attempts has been exceeded!')
+                    logger.error('The number of API access attempts has been exceeded!')
                     break
     return wrapper

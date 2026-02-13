@@ -17,5 +17,4 @@ async_session = async_sessionmaker(async_engine, expire_on_commit=False, class_=
 async def init_db(engine):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        print(f"Loaded tables - {Base.metadata.tables.keys()}")
 

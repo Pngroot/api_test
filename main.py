@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from src.core.database import init_db, async_engine
 from src.core.cache import create_redis
 from src.core.weather import weather_api_listener
+from src.core.logger import logger
 from src.api.auth import auth_router
 from src.api.weather import weather_router
 from src.dependences.base import is_authorized
@@ -11,6 +12,7 @@ from src.services.base import close_session
 
 @asynccontextmanager
 async def db_lifespan(app: FastAPI):
+    logger.info('Launching application services')
     await init_db(async_engine)
     app.state.redis = create_redis()
     await app.state.redis.ping()

@@ -1,4 +1,4 @@
-from main import app
+from main import app, logger
 
 
 redis = app.state.redis
@@ -10,7 +10,7 @@ async def add_to_cache(key, value, ttl=None):
     try:
         await redis.set(key, json.dumps(value), ex=ttl)
     except Exception as e:
-        print(f"Error saving data to Redis: {e}")
+        logger.error(f"Error saving data to Redis: {e}")
 
 
 async def _iter_scan_keys(pattern):

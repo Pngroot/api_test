@@ -1,3 +1,6 @@
+from src.core.logger import logger
+
+
 def insert_to_db(func):
     from src.core.database import async_session
 
@@ -10,7 +13,7 @@ def insert_to_db(func):
                 await session.refresh(data)
             return data, None
         except Exception as e:
-            print(e)
+            logger.error(f"SQLAlchemy INSERT error: {e}")
             error = type(e)
             return None, error
     return wrapper
@@ -29,7 +32,7 @@ def get_from_db(func):
                 result = dict(result)
             return result
         except Exception as e:
-            print(e)
+            logger.error(f"SQLAlchemy SELECT (GET) error: {e}")
         return None
     return wrapper
 
@@ -45,7 +48,7 @@ def select_from_db(func):
                 rows = query_result.mappings().all()
             return [dict(r) for r in rows] if rows else []
         except Exception as e:
-            print(e)
+            logger.error(f"SQLAlchemy SELECT error: {e}")
         return []
     return wrapper
 
@@ -65,7 +68,7 @@ def update_db(func):
                     result = dict(result)
                 return result
         except Exception as e:
-            print(e)
+            logger.error(f"SQLAlchemy UPDATE error: {e}")
         return {}
     return wrapper
 
@@ -84,5 +87,6 @@ def delete_from_db(func):
                 raise NoResultFound
             return True, None
         except Exception as e:
+            logger.error(f"SQLAlchemy DELETE error: {e}")
             return False, type(e)
     return wrapper

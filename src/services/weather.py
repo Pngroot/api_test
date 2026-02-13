@@ -5,7 +5,6 @@ async def add_city(data):
     from src.db_requests.weather import add_city_data
 
     result, error = await add_city_data(data)
-    print(result)
     if result:
         return AddedCity(city=result, status=status.HTTP_201_CREATED)
     error_messages = {status.HTTP_409_CONFLICT: 'City already exists!',

@@ -18,7 +18,6 @@ async def create_user(username, password):
     from src.data.auth import UserRegistered
 
     user, error = await create_user(username, password)
-    print(f"User - {user or 'None'}, error - {error or 'None'}")
     if user:
         return UserRegistered(user=user, status=status.HTTP_201_CREATED)
     error_messages = {status.HTTP_409_CONFLICT: 'User already exists!',
